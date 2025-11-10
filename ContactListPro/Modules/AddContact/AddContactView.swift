@@ -29,22 +29,22 @@ struct AddContactView: View {
     }
     
     private func saveContact() {
-        // Validate non-empty
+        
         guard !name.isEmpty, !phone.isEmpty, !email.isEmpty else { return }
         
-        // Save contact
+        
         let storage = ContactStorage()
         var contacts = storage.fetch()
         let newContact = Contact(name: name, phone: phone, email: email)
         contacts.append(newContact)
         storage.save(contacts)
         
-        // Clear fields
+        
         name = ""
         phone = ""
         email = ""
         
-        // Navigate back to list
+        
         router.goBackToList()
     }
 }

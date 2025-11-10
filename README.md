@@ -47,7 +47,7 @@ The Add Contact screen is a SwiftUI form for entering new contact details (name,
 
 ## Screen 3 — Contact Detail Screen
 
-The Contact Detail screen displays a single contact’s full information. It relies on the ContactList VIPER structure to manage updates and deletions, ensuring all data modifications go through the same Interactor and Presenter layers.
+The Contact Detail screen displays a single contact’s full information. It relies on the ContactList VIPER structure to manage adding and deletions, ensuring all data modifications go through the same Interactor and Presenter layers.
 
 <img width="222" height="465" alt="ContactDetails" src="https://github.com/user-attachments/assets/4c28d434-28a2-4c43-b559-898d60a1fb05" />
 

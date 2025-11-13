@@ -14,7 +14,19 @@ Entities: The Contact.swift file defines the contact data model (id, name, phone
 
 The Contact List screen displays all stored contacts fetched from UserDefaults. It allows adding, selecting, or deleting contacts. The screen uses a SwiftUI List showing names and phone numbers, with an “Add”(+) button in the navigation bar for creating new contacts.
 
-<img width="223" height="465" alt="ContactList" src="https://github.com/user-attachments/assets/7d82f8b2-5f08-40b5-a647-cd88e1cde766" />
+
+<img width="264" height="578" alt="Screenshot 2025-11-13 at 7 01 42 PM" src="https://github.com/user-attachments/assets/a8c42c50-bc50-49a0-82f8-5acb8723e13c" />
+<img width="269" height="579" alt="Screenshot 2025-11-13 at 7 00 30 PM" src="https://github.com/user-attachments/assets/d3d34d93-4adf-40db-97e6-c8f264103b64" />
+<img width="272" height="570" alt="Screenshot 2025-11-13 at 7 00 40 PM" src="https://github.com/user-attachments/assets/0b6cb952-b021-4e9b-a84f-e81cf53183fa" />
+<img width="256" height="571" alt="Screenshot 2025-11-13 at 7 00 56 PM" src="https://github.com/user-attachments/assets/40d199a3-28b3-4612-9277-56a085ac7554" />
+<img width="266" height="576" alt="Screenshot 2025-11-13 at 7 01 10 PM" src="https://github.com/user-attachments/assets/763bbab3-d02d-46e1-9081-f086660010b4" />
+<img width="271" height="572" alt="Screenshot 2025-11-13 at 7 01 53 PM" src="https://github.com/user-attachments/assets/ac14c477-0925-4b00-b055-aa36479b2428" />
+<img width="267" height="573" alt="Screenshot 2025-11-13 at 7 02 03 PM" src="https://github.com/user-attachments/assets/40b36709-94de-41f6-bf62-e879b39ecc8d" />
+<img width="272" height="578" alt="Screenshot 2025-11-13 at 7 02 18 PM" src="https://github.com/user-attachments/assets/30f49a1e-dd05-41f6-bfcb-1ea097776917" />
+<img width="274" height="574" alt="Screenshot 2025-11-13 at 7 02 57 PM" src="https://github.com/user-attachments/assets/e7f05733-9ab6-4474-8e46-7abb3625bd29" />
+<img width="276" height="580" alt="Screenshot 2025-11-13 at 7 03 28 PM" src="https://github.com/user-attachments/assets/fabb5b26-e5ca-4a2e-9b6f-f008fd410592" />
+<img width="253" height="574" alt="Screenshot 2025-11-13 at 7 03 46 PM" src="https://github.com/user-attachments/assets/06c0f3c0-04ab-49f1-8b11-9c0c84723c35" />
+
 
  ### VIPER Flow :
 
@@ -33,7 +45,7 @@ The Contact List screen displays all stored contacts fetched from UserDefaults. 
 
 The Add Contact screen is a SwiftUI form for entering new contact details (name, phone, email). It doesn’t have a separate VIPER module; it uses logic from the ContactListInteractor for saving data and communicates back through the ContactListPresenter to refresh the list.
 
-<img width="222" height="458" alt="AddContact" src="https://github.com/user-attachments/assets/a7105b13-5cf5-4895-8725-266925dac77c" />
+
 
 ### Working:
 
@@ -49,7 +61,7 @@ The Add Contact screen is a SwiftUI form for entering new contact details (name,
 
 The Contact Detail screen displays a single contact’s full information. It relies on the ContactList VIPER structure to manage adding and deletions, ensuring all data modifications go through the same Interactor and Presenter layers.
 
-<img width="222" height="465" alt="ContactDetails" src="https://github.com/user-attachments/assets/4c28d434-28a2-4c43-b559-898d60a1fb05" />
+
 
 ### Working:
 
@@ -60,5 +72,7 @@ The Contact Detail screen displays a single contact’s full information. It rel
 -	ContactListInteractor removes the record in UserDefaults using ContactStorage.
 
 -	The ContactListPresenter refreshes ContactListView with the latest data when returning.
+
+
 
 

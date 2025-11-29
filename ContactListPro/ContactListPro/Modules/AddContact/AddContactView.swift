@@ -1,20 +1,19 @@
 import SwiftUI
 
 struct AddContactView: View, AddContactViewProtocol {
+    
     @StateObject var presenter: AddContactPresenter
-
     @State private var name = ""
     @State private var phone = ""
     @State private var email = ""
-
+    
     @State private var showAlert = false
     @State private var alertMessage = ""
-
     
     @State private var nameInvalid = false
     @State private var phoneInvalid = false
     @State private var emailInvalid = false
-
+    
     var body: some View {
         Form {
             Section(header: Text("Contact Information")) {
@@ -29,7 +28,6 @@ struct AddContactView: View, AddContactViewProtocol {
                         .background(nameInvalid ? Color.red.opacity(0.2) : Color.clear)
                         .cornerRadius(6)
                 }
-
                 VStack(alignment: .leading, spacing: 6) {
                     HStack(spacing: 2) {
                         Text("Phone")
@@ -41,7 +39,6 @@ struct AddContactView: View, AddContactViewProtocol {
                         .background(phoneInvalid ? Color.red.opacity(0.2) : Color.clear)
                         .cornerRadius(6)
                 }
-
                 VStack(alignment: .leading, spacing: 6) {
                     HStack(spacing: 2) {
                         Text("Email")
@@ -55,7 +52,6 @@ struct AddContactView: View, AddContactViewProtocol {
                         .cornerRadius(6)
                 }
             }
-
             Section {
                 Button(action: {
                     presenter.didTapSave(name: name, phone: phone, email: email)
@@ -64,7 +60,6 @@ struct AddContactView: View, AddContactViewProtocol {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 6)
                 }
-
                 Button(action: {
                     presenter.didTapCancel()
                 }) {
@@ -87,13 +82,13 @@ struct AddContactView: View, AddContactViewProtocol {
             )
         }
     }
-
+    
     // MARK: - View Protocol
     func showValidationError(_ message: String) {
         alertMessage = message
         showAlert = true
     }
-
+    
     func highlightInvalidFields(nameInvalid: Bool, phoneInvalid: Bool, emailInvalid: Bool) {
         self.nameInvalid = nameInvalid
         self.phoneInvalid = phoneInvalid

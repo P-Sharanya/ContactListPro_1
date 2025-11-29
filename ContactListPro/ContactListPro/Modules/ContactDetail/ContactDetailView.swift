@@ -1,39 +1,64 @@
 import SwiftUI
 
 struct ContactDetailView: View, ContactDetailViewProtocol {
-    @StateObject private var presenter: ContactDetailPresenter
-    @State private var showDeleteConfirmation = false
+    
+    @StateObject var presenter: ContactDetailPresenter
     @State private var isEditing = false
-
-    @State private var name: String = ""
-    @State private var phone: String = ""
-    @State private var email: String = ""
-
-    @State private var showAlert = false
-    @State private var alertMessage = ""
-    @State private var isSuccessAlert = false
-
+    
+    @State private var name = ""
+    @State private var phone = ""
+    @State private var email = ""
+    
     init(presenter: ContactDetailPresenter) {
         _presenter = StateObject(wrappedValue: presenter)
     }
-
+    
     var body: some View {
         VStack {
             if isEditing {
-                editView
+                Form {
+                    labeledField("Name", text: $name)
+                    labeledField("Phone", text: $phone)
+                    labeledField("Email", text: $email)
+                    Section {
+                        Button {
+                            presenter.didTapSaveEdit(name: name, phone: phone, email: email)
+                        } label: {
+                            Text("Save Changes").frame(maxWidth: .infinity)
+                        }
+                    }
+                }
             } else {
-                detailView
+                VStack(alignment: .leading, spacing: 20) {
+                    infoRow(title: "Name", value: presenter.contact.name)
+                    infoRow(title: "Phone", value: presenter.contact.phone)
+                    infoRow(title: "Email", value: presenter.contact.email)
+                }
+                .padding(.horizontal)
+                Spacer()
+            }
+            
+            if !isEditing {
+                Button(role: .destructive) {
+                    presenter.requestDelete()
+                } label: {
+                    Text("Delete Contact")
+                        .bold()
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.red.opacity(0.9))
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                        .padding(.horizontal)
+                        .padding(.bottom, 20)
+                }
             }
         }
         .navigationTitle(isEditing ? "Edit Contact" : "Contact Details")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                
-                if !presenter.contact.isFromAPI {
-                    if isEditing {
-                    Button("Cancel") {
-                        isEditing = false
-                    }
+                if isEditing {
+                    Button("Cancel") { isEditing = false }
                 } else {
                     Button("Edit") {
                         name = presenter.contact.name
@@ -43,107 +68,46 @@ struct ContactDetailView: View, ContactDetailViewProtocol {
                     }
                 }
             }
-            }
         }
-        .alert(alertMessage, isPresented: $showAlert) {
-            if isSuccessAlert {
-                Button("OK") { isEditing = false }
-            } else {
-                Button("OK", role: .cancel) {}
-            }
-        }
-        Group{
-            if !presenter.isRemote && !isEditing {
-                VStack {
-                    Spacer()
-                    Button(role: .destructive) {
-                        showDeleteConfirmation = true
-                    } label: {
-                        Text("Delete Contact")
-                            .bold()
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.red.opacity(0.9))
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
-                            .padding(.horizontal)
-                            .padding(.bottom, 20)
+        .alert(item: $presenter.activeAlert) { alert in
+            switch alert {
+            case .confirmDelete(let contact):
+                return Alert(
+                    title: Text("Delete Contact"),
+                    message: Text("Are you sure you want to delete \(contact.name)?"),
+                    primaryButton: .destructive(Text("Delete")) {
+                        presenter.deleteConfirmed()
+                    },
+                    secondaryButton: .cancel()
+                )
+            case .success(let msg):
+                return Alert(
+                    title: Text("Success"),
+                    message: Text(msg),
+                    dismissButton: .default(Text("OK")) {
+                        if isEditing {
+                           
+                            isEditing = false
+                        } else {
+                            
+                            presenter.afterDeleteSuccessNavigateBack()
+                        }
                     }
-                }
-            }
-        }
-        .alert("Are you sure you want to delete this contact?",
-               isPresented: $showDeleteConfirmation) {
-            Button("Cancel", role: .cancel) {}
-            Button("Delete", role: .destructive) {
-                presenter.didTapDelete()
-            }
-        }
-        .onAppear {
-            presenter.view = self
-        }
-    }
-}
-
-extension ContactDetailView {
-
-    // MARK: - Detail View
-    private var detailView: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            VStack(alignment: .leading, spacing: 12) {
-                infoRow(title: "Name", value: presenter.contact.name)
-                infoRow(title: "Phone", value: presenter.contact.phone)
-                infoRow(title: "Email", value: presenter.contact.email)
-            }
-            .padding(.horizontal)
-
-            Spacer()
-
-         
-        }
-    }
-
-    private func infoRow(title: String, value: String) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title)
-                .font(.body)
-                .foregroundColor(.gray)
-            Text(value)
-                .font(.headline)
-        }
-        .frame(maxWidth: .infinity,alignment: .leading)
-
-    }
-
-    // MARK: - Edit View
-    private var editView: some View {
-        Form {
-            Section(header: Text("Contact Information")) {
-
-                labeledField("Name", text: $name)
-                labeledField("Phone", text: $phone)
-                    .keyboardType(.numberPad)
-
-                labeledField("Email", text: $email)
-                    .keyboardType(.emailAddress)
-            }
-
-            Section {
-                Button {
-                    presenter.didTapSaveEdit(name: name, phone: phone, email: email)
-                } label: {
-                    Text("Save Changes")
-                        .frame(maxWidth: .infinity)
-                }
+                )
+            case .error(let msg):
+                return Alert(
+                    title: Text("Error"),
+                    message: Text(msg),
+                    dismissButton: .default(Text("OK"))
+                )
             }
         }
     }
-
+    
+    // MARK: - Helper UI funcs
     private func labeledField(_ label: String, text: Binding<String>) -> some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(label)
-                .font(.subheadline)
-                .foregroundColor(.gray)
+            Text(label).font(.subheadline).foregroundColor(.gray)
             TextField(label, text: text)
                 .padding(8)
                 .background(Color(.secondarySystemBackground))
@@ -151,11 +115,21 @@ extension ContactDetailView {
         }
         .padding(.vertical, 4)
     }
-
-    // MARK: - Protocol
-    func showAlert(message: String, success: Bool = false) {
-        alertMessage = message
-        isSuccessAlert = success
-        showAlert = true
+    
+    private func infoRow(title: String, value: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title).font(.caption).foregroundColor(.gray)
+            Text(value).font(.body).foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    
+    // MARK: - View Protocol
+    func showAlert(message: String, success: Bool) {
+        if success {
+            presenter.activeAlert = .success(message)
+        } else {
+            presenter.activeAlert = .error(message)
+        }
     }
 }

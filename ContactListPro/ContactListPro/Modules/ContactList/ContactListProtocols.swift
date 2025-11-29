@@ -1,4 +1,5 @@
 import UIKit
+import SwiftUI
 
 // MARK: - View
 protocol ContactListViewProtocol {
@@ -9,23 +10,23 @@ protocol ContactListViewProtocol {
 // MARK: - Presenter
 protocol ContactListPresenterProtocol: AnyObject {
     func viewDidLoad()
+    func loadLocalContacts()
     func didSelectContact(_ contact: Contact)
-    func didTapAddContact()
-    func didFetchContacts(_ contacts: [Contact])
-    func didTapAPIContacts()   
-    func didFetchAPIContacts(_ contacts: [Contact])
+    func refreshAfterAdd()
 }
 
 // MARK: - Interactor
 protocol ContactListInteractorProtocol: AnyObject {
-    func fetchContacts()
-    func fetchAPIContacts()
-    }
+    func fetchLocalContacts() async -> [Contact]
+    func fetchAPIContacts() async throws -> [Contact]
+}
 
 // MARK: - Router
 protocol ContactListRouterProtocol: AnyObject {
+    var viewController: UIViewController? { get set }
+    var navigationController: UINavigationController? { get set }
     func navigationToAddContacts()
-    func navigationToContactDetail(contact: Contact)
+    func navigationToContactDetail(presenter: ContactDetailPresenter)
 }
 
 // MARK: - Builder

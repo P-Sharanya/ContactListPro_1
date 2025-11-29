@@ -2,33 +2,26 @@ import UIKit
 import SwiftUI
 
 final class ContactListRouter: ContactListRouterProtocol {
-
     weak var viewController: UIViewController?
     weak var navigationController: UINavigationController?
-    init(viewController: UIViewController? = nil, navigationController: UINavigationController? = nil) {
+    
+    init(viewController: UIViewController? = nil,
+         navigationController: UINavigationController? = nil) {
         self.viewController = viewController
         self.navigationController = navigationController
     }
 
     func navigationToAddContacts() {
-        
-        let addContactBuilder = AddContactBuilder()
-
-
-        let addContactVC = addContactBuilder.build { [weak self] in
-            if let hostingVC = self?.viewController as? UIHostingController<ContactListView> {
-                hostingVC.rootView.presenter.viewDidLoad()
-            }
-        }
-        navigationController?.pushViewController(addContactVC, animated: true)
-    }
-
-    func navigationToContactDetail(contact: Contact) {
-        let contactDetailBuilder = ContactDetailBuilder()
-        
-        let detailVC = contactDetailBuilder.build(with: contact)
-        navigationController?.pushViewController(detailVC, animated: true)
+        let addVC = AddContactBuilder().build(navigationController: navigationController)
+        navigationController?.pushViewController(addVC, animated: true)
     }
     
+    func navigationToContactDetail(presenter: ContactDetailPresenter) {
+        if let detailRouter = presenter.router as? ContactDetailRouter {
+            detailRouter.navigationController = navigationController
+        }
+        let vc = ContactDetailBuilder().build(with: presenter.contact, presenter: presenter)
+        navigationController?.pushViewController(vc, animated: true)
+    }
 }
 

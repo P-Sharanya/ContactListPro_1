@@ -1,74 +1,86 @@
 import Foundation
 
 final class ContactDetailPresenter: ObservableObject, ContactDetailPresenterProtocol {
+    
     @Published var contact: Contact
+    @Published var activeAlert: AppAlert?
+    
+    let router: ContactDetailRouterProtocol
     private let interactor: ContactDetailInteractorProtocol
-    private let router: ContactDetailRouterProtocol
-    var view: ContactDetailViewProtocol?
+    private let refreshListCallback: (() async -> Void)?
     
-    
-    var isRemote: Bool = false
-
-
     init(contact: Contact,
          interactor: ContactDetailInteractorProtocol,
-         router: ContactDetailRouterProtocol) {
+         router: ContactDetailRouterProtocol,
+         refreshListCallback: (() async -> Void)? = nil) {
+
         self.contact = contact
         self.interactor = interactor
         self.router = router
+        self.refreshListCallback = refreshListCallback
     }
 
     func didTapSaveEdit(name: String, phone: String, email: String) {
         let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
-
-        // MARK: - Validation
+        let trimmedPhone = phone.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmedName.isEmpty {
-            view?.showAlert(message: "Name is required.", success: false)
+            activeAlert = .error("Name is required.")
             return
         }
-
-        if phone.trimmingCharacters(in: .whitespaces).isEmpty {
-            view?.showAlert(message: "Phone number is required.", success: false)
+        if trimmedPhone.isEmpty {
+            activeAlert = .error("Phone number is required.")
             return
         }
-
-        if email.trimmingCharacters(in: .whitespaces).isEmpty {
-            view?.showAlert(message: "Email address is required.", success: false)
+        if !trimmedPhone.matches("^[0-9]{10}$") {
+            activeAlert = .error("Phone number must contain exactly 10 digits.")
             return
         }
-
-        let phoneRegex = "^[0-9]{10}$"
-        if !NSPredicate(format: "SELF MATCHES %@", phoneRegex).evaluate(with: phone) {
-            view?.showAlert(message: "Phone number must contain exactly 10 digits.", success: false)
+        if trimmedEmail.isEmpty {
+            activeAlert = .error("Email is required.")
             return
         }
-
-        let emailRegex = "^[0-9a-z._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}$"
-        if !NSPredicate(format: "SELF MATCHES %@", emailRegex).evaluate(with: email) {
-            view?.showAlert(message: "Please enter a valid email address.", success: false)
+        if !trimmedEmail.matches("^[0-9a-z._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}$") {
+            activeAlert = .error("Enter a valid email address.")
             return
         }
-
-        // MARK: - Save Changes
-        contact.name = trimmedName
-        contact.phone = phone
-        contact.email = email
-
+       
+        let updated = Contact(
+            id: contact.id,
+            name: trimmedName,
+            phone: trimmedPhone,
+            email: trimmedEmail,
+            isFromAPI: contact.isFromAPI
+        )
         do {
-            try interactor.updateContact(contact)
-            view?.showAlert(message: "Contact updated successfully!", success: true)
+            try interactor.updateContact(updated)
+            self.contact = updated
+            self.activeAlert = .success("Contact updated successfully.")
         } catch {
-            view?.showAlert(message: "Failed to update contact: \(error.localizedDescription)", success: false)
+            self.activeAlert = .error("Failed to update contact.")
         }
     }
-    func didTapDelete() {
+  
+    func requestDelete() {
+        activeAlert = .confirmDelete(contact)
+    }
+    
+    func deleteConfirmed() {
         do {
             try interactor.deleteContact(contact)
-            router.navigateBackToContactList()
+           
+            activeAlert = .success("Contact deleted successfully.")
+          
+            Task {
+                await refreshListCallback?()
+            }
+            
         } catch {
-            view?.showAlert(message: "Failed to delete contact: \(error.localizedDescription)", success: false)
+            activeAlert = .error("Failed to delete contact.")
         }
     }
 
+    func afterDeleteSuccessNavigateBack() {
+        router.navigateBackToContactList()
+    }
 }
-

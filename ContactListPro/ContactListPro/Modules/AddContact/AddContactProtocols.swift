@@ -24,5 +24,5 @@ protocol AddContactRouterProtocol: AnyObject {
 
 // MARK: - Builder
 protocol AddContactBuilderProtocol {
-    func build(onContactAdded: @escaping () -> Void) -> UIViewController
+    func build(navigationController: UINavigationController?, refreshCallback: (() async -> Void)?) -> UIViewController
 }

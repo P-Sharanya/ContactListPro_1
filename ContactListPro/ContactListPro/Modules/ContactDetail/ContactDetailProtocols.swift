@@ -3,7 +3,6 @@ import UIKit
 
 // MARK: - View
 protocol ContactDetailViewProtocol {
-    func showAlert(message: String, success: Bool)
 }
 
 // MARK: - Presenter

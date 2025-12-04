@@ -16,7 +16,7 @@ enum AddContactValidationError: Error, LocalizedError {
         case .emptyEmail:
             return "Email address is required."
         case .invalidPhone:
-            return "Phone number must contain exactly 10 digits."
+            return "Invalid phone number format."
         case .invalidEmail:
             return "Please enter a valid email address."
         }

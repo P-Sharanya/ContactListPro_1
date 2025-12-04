@@ -123,13 +123,4 @@ struct ContactDetailView: View, ContactDetailViewProtocol {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
-    
-    // MARK: - View Protocol
-    func showAlert(message: String, success: Bool) {
-        if success {
-            presenter.activeAlert = .success(message)
-        } else {
-            presenter.activeAlert = .error(message)
-        }
-    }
 }
